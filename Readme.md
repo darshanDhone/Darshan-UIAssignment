@@ -66,11 +66,10 @@ mvn spring-boot:run
 
 The application will be available at http://localhost:8080.
 
-Database Configuration
+### Database Configuration
 To use MySQL, update the application.properties with your MySQL credentials:
 
-properties
-
+### properties
 spring.datasource.url=jdbc:mysql://localhost:3306/customer_rewards
 spring.datasource.username=root
 spring.datasource.password=root

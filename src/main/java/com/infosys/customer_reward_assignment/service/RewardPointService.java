@@ -40,7 +40,7 @@ public class RewardPointService {
         Customer customer = transaction.getCustomer();
         int points = calculatePoints(transaction.getAmount());
 
-        LocalDate date = transaction.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        LocalDate date = transaction.getDate();
         int month = date.getMonthValue();
         int year = date.getYear();
 
@@ -66,21 +66,31 @@ public class RewardPointService {
         return new ResponseEntity<>(rewardPointRepository.findAll(), HttpStatus.OK);
     }
 
-    public ResponseEntity<?> getRewardSummaryForCustomer(Long customerId) {
+    public ResponseEntity<?> getRewardSummaryForCustomer(Long customerId, String strEndDate) {
 
-        List<RewardPoint> rewards = rewardPointRepository.findByCustomerId(customerId);
+        LocalDate endDate = LocalDate.parse(strEndDate);
+        LocalDate startDate = endDate.minusMonths(3).plusDays(1);
 
+        List<CustomerTransaction> transactions = transactionRepository.findByCustomerIdAndDateBetween(customerId, startDate, endDate);
+
+        Map<String, Integer> monthlyPoints = new HashMap<>();
         int totalPoints = 0;
-        for (RewardPoint reward : rewards) {
-            totalPoints += reward.getPoints();
+
+        for (CustomerTransaction transaction : transactions) {
+            LocalDate transactionDateDate = transaction.getDate();
+            String monthKey = transactionDateDate.getMonth().toString() + " " + transactionDateDate.getYear();
+
+            int points = calculatePoints(transaction.getAmount());
+            monthlyPoints.put(monthKey, monthlyPoints.getOrDefault(monthKey, 0) + points);
+            totalPoints += points;
         }
 
-        Map<String, Object> result = new HashMap<>();
-        result.put("customerId", customerId);
-        result.put("monthlyRewards", rewards);
-        result.put("totalPoints", totalPoints);
+        Map<String, Object> response = new HashMap<>();
+        response.put("customerId", customerId);
+        response.put("rewardsPerMonth", monthlyPoints);
+        response.put("totalRewards", totalPoints);
 
-        return new ResponseEntity<>(result, HttpStatus.OK);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
 }

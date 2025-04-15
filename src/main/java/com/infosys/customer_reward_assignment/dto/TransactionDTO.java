@@ -8,20 +8,20 @@ public class TransactionDTO {
     private Long customerId;
     private String spendDetails;
     private Double amount;
-    private Date date;
+    private LocalDate date;
 
-    public TransactionDTO(Date date, Double amount, String spendDetails, Long customerId) {
+    public TransactionDTO(LocalDate date, Double amount, String spendDetails, Long customerId) {
         this.date = date;
         this.amount = amount;
         this.spendDetails = spendDetails;
         this.customerId = customerId;
     }
 
-    public Date getDate() {
+    public LocalDate getDate() {
         return date;
     }
 
-    public void setDate(Date date) {
+    public void setDate(LocalDate date) {
         this.date = date;
     }
 

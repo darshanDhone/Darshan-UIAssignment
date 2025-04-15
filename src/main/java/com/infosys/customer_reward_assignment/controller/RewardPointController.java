@@ -25,9 +25,9 @@ public class RewardPointController {
         return rewardPointService.getAllRewards();
     }
 
-    @GetMapping("/customer/{customerId}/summary")
-    public ResponseEntity<?> getCustomerRewardSummary(@PathVariable Long customerId) {
-        return rewardPointService.getRewardSummaryForCustomer(customerId);
+    @GetMapping("/customer-rewards/{customerId}/{endDate}")
+    public ResponseEntity<?> getCustomerRewardsSummary(@PathVariable Long customerId, @PathVariable String endDate) {
+        return rewardPointService.getRewardSummaryForCustomer(customerId, endDate);
     }
 
 }

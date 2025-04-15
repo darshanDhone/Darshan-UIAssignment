@@ -5,7 +5,6 @@ import com.infosys.customer_reward_assignment.model.CustomerTransaction;
 import com.infosys.customer_reward_assignment.model.RewardPoint;
 import com.infosys.customer_reward_assignment.repo.CustomerTransactionRepository;
 import com.infosys.customer_reward_assignment.repo.RewardsPointRepository;
-import com.infosys.customer_reward_assignment.service.RewardPointService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -14,14 +13,15 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.sql.Date;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 public class RewardPointServiceTest {
 
@@ -45,11 +45,10 @@ public class RewardPointServiceTest {
         Customer customer = new Customer();
         customer.setId(1L);
 
-        // Use java.util.Date instead of java.sql.Date
         CustomerTransaction transaction = new CustomerTransaction();
         transaction.setAmount(150.0);
         transaction.setCustomer(customer);
-        transaction.setDate(new java.util.Date()); // Use java.util.Date here
+        transaction.setDate(LocalDate.now());
 
         RewardPoint existingReward = new RewardPoint(customer, 50, 2025, 4);
 
@@ -76,19 +75,29 @@ public class RewardPointServiceTest {
     }
 
     @Test
-    void getRewardSummaryForCustomerTest() {
+    void getRewardsSummaryForCustomerTest() {
+        Customer customer = new Customer();
+        List<CustomerTransaction> transactions = Arrays.asList(
+                new CustomerTransaction(customer, "Purchase A", 120.0, LocalDate.parse("2024-04-10")),
+                new CustomerTransaction(customer, "Purchase B", 80.0, LocalDate.parse("2024-05-10"))
+        );
 
-        List<RewardPoint> rewards = Arrays.asList(new RewardPoint(new Customer(), 100, 2025, 4),
-                new RewardPoint(new Customer(), 150, 2025, 5));
+        when(transactionRepository.findByCustomerIdAndDateBetween(eq(1L), any(), any()))
+                .thenReturn(transactions);
 
-        when(rewardPointRepository.findByCustomerId(1L)).thenReturn(rewards);
-
-        ResponseEntity<?> response = rewardPointService.getRewardSummaryForCustomer(1L);
+        ResponseEntity<?> response = rewardPointService.getRewardSummaryForCustomer(1L, "2024-05-16");
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertTrue(response.getBody() instanceof Map);
+
         Map<String, Object> result = (Map<String, Object>) response.getBody();
-        assertEquals(250, result.get("totalPoints"));
-        assertNotNull(result.get("monthlyRewards"));
+
+        int expectedPoints = rewardPointService.calculatePoints(120.0) + rewardPointService.calculatePoints(80.0);
+        assertEquals(expectedPoints, result.get("totalRewards"));
+
+        Map<String, Integer> rewardsPerMonth = (Map<String, Integer>) result.get("rewardsPerMonth");
+        assertNotNull(rewardsPerMonth);
+        assertFalse(rewardsPerMonth.isEmpty());
     }
+
 }

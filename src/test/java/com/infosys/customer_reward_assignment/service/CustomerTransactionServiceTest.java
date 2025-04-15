@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.*;
 import org.springframework.http.ResponseEntity;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.Optional;
 
@@ -39,7 +40,7 @@ public class CustomerTransactionServiceTest {
     @Test
     void addTransactionTest() {
 
-        TransactionDTO dto = new TransactionDTO(new Date(), 100.0, "Groceries",1L);
+        TransactionDTO dto = new TransactionDTO(LocalDate.now(), 100.0, "Groceries",1L);
         Customer customer = new Customer();
         customer.setId(1L);
 

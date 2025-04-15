@@ -2,6 +2,7 @@ package com.infosys.customer_reward_assignment.model;
 
 import jakarta.persistence.*;
 
+import java.time.LocalDate;
 import java.util.Date;
 //Could have used lombok but was not supporting in my system
 
@@ -20,7 +21,7 @@ public class CustomerTransaction {
 
     private Double amount;
 
-    private Date date;
+    private LocalDate date;
 
     public CustomerTransaction() {
     }
@@ -33,7 +34,7 @@ public class CustomerTransaction {
         this.id = id;
     }
 
-    public CustomerTransaction(Customer customer, String spendDetails, Double amount, Date date) {
+    public CustomerTransaction(Customer customer, String spendDetails, Double amount, LocalDate date) {
         this.customer = customer;
         this.spendDetails = spendDetails;
         this.amount = amount;
@@ -68,11 +69,11 @@ public class CustomerTransaction {
         this.amount = amount;
     }
 
-    public Date getDate() {
+    public LocalDate getDate() {
         return date;
     }
 
-    public void setDate(Date date) {
+    public void setDate(LocalDate date) {
         this.date = date;
     }
 }
